@@ -2,3 +2,4 @@ Hi
 This is first commit
 this is second change
 This is git fetch test
+git pull
