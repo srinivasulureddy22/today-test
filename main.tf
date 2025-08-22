@@ -2,31 +2,41 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 4.8.0"
+      version = "~>3.0"
     }
   }
-  required_version = ">=1.3.7"
 }
 
 provider "azurerm" {
   features {}
-  subscription_id = "b1f922a0-3de4-4c1f-bfe4-26c679ab2c65"
 }
 
-
-resource "azurerm_resource_group" "example_rg" {
-  name     = "storagerg"
-  location = "UK South"
+resource "random_string" "resource_code" {
+  length  = 5
+  special = false
+  upper   = false
 }
 
-resource "azurerm_storage_account" "ex_storage" {
-  name                     = "cloudtechstorage"
-  resource_group_name      = azurerm_resource_group.example_rg.name
-  location                 = azurerm_resource_group.example_rg.location
+resource "azurerm_resource_group" "tfstate" {
+  name     = "tfstate"
+  location = "East US"
+}
+
+resource "azurerm_storage_account" "tfstate" {
+  name                     = "tfstate${random_string.resource_code.result}"
+  resource_group_name      = azurerm_resource_group.tfstate.name
+  location                 = azurerm_resource_group.tfstate.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
+  allow_nested_items_to_be_public = false
 
   tags = {
     environment = "staging"
   }
+}
+
+resource "azurerm_storage_container" "tfstate" {
+  name                  = "tfstate"
+  storage_account_id    = azurerm_storage_account.tfstate.id
+  container_access_type = "private"
 }
