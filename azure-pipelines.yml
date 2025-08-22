@@ -1,7 +1,13 @@
+trigger:
+- main   # Run pipeline when you push to main branch
+
+pool:
+  vmImage: 'ubuntu-latest'
+
 steps:
 - task: AzureCLI@2
   inputs:
-    azureSubscription: 'terraformtest'   # Name of your service connection
+    azureSubscription: 'terraformtest'   # Your Azure Service Connection name
     scriptType: 'bash'
     scriptLocation: 'inlineScript'
     inlineScript: |
