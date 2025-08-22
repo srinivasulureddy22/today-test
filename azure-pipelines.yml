@@ -1,23 +1,34 @@
-steps:
-- task: TerraformInstaller@0
-  inputs:
-    terraformVersion: '1.7.3'
+trigger:
+- main
 
-- task: TerraformTaskV4@4
-  inputs:
-    provider: 'azurerm'
-    command: 'init'
-    workingDirectory: '$(System.DefaultWorkingDirectory)'
+pool:
+  vmImage: 'ubuntu-latest'
 
-- task: TerraformTaskV4@4
-  inputs:
-    provider: 'azurerm'
-    command: 'plan'
-    workingDirectory: '$(System.DefaultWorkingDirectory)'
+variables:
+  TF_VERSION: '1.7.3'
+  ARM_CLIENT_ID: 389cd216-654a-41c2-943c-008b9fe031fd
+  ARM_CLIENT_SECRET: 745883d0-5cf9-4d4a-949e-4343d8c71d00
+  ARM_SUBSCRIPTION_ID: b1f922a0-3de4-4c1f-bfe4-26c679ab2c65
+  ARM_TENANT_ID: c1cfadbf-41d1-4477-87ba-aeb9fcfd2388
 
-- task: TerraformTaskV4@4
-  inputs:
-    provider: 'azurerm'
-    command: 'apply'
-    workingDirectory: '$(System.DefaultWorkingDirectory)'
-    commandOptions: '-auto-approve'
+stages:
+- stage: Terraform
+  jobs:
+  - job: Terraform
+    steps:
+    - task: UseTerraform@0
+      inputs:
+        terraformVersion: $(TF_VERSION)
+
+    - script: terraform init
+      displayName: 'Terraform Init'
+
+    - script: terraform validate
+      displayName: 'Terraform Validate'
+
+    - script: terraform plan -out=tfplan
+      displayName: 'Terraform Plan'
+
+    - script: terraform apply -auto-approve tfplan
+      displayName: 'Terraform Apply'
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
