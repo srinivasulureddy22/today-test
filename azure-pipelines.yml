@@ -1,25 +1,23 @@
-trigger:
-  branches:
-    include:
-      - master
-
-pool:
-  vmImage: 'ubuntu-latest'
-
 steps:
-- task: UsePythonVersion@0
+- task: TerraformInstaller@0
   inputs:
-    versionSpec: '3.x'
-    addToPath: true
+    terraformVersion: '1.7.3'
 
-- script: |
-    terraform init
-    terraform validate
-  displayName: 'Terraform Init and Validate'
+- task: TerraformTaskV4@4
+  inputs:
+    provider: 'azurerm'
+    command: 'init'
+    workingDirectory: '$(System.DefaultWorkingDirectory)'
 
-- script: terraform plan -out=tfplan -var="resource_group_name=$(resourceGroupName)" -var="location=$(location)"
-  displayName: 'Terraform Plan'
+- task: TerraformTaskV4@4
+  inputs:
+    provider: 'azurerm'
+    command: 'plan'
+    workingDirectory: '$(System.DefaultWorkingDirectory)'
 
-- script: terraform apply -input=false tfplan
-  displayName: 'Terraform Apply'
-  condition: succeeded()
+- task: TerraformTaskV4@4
+  inputs:
+    provider: 'azurerm'
+    command: 'apply'
+    workingDirectory: '$(System.DefaultWorkingDirectory)'
+    commandOptions: '-auto-approve'
