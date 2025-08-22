@@ -5,6 +5,7 @@ terraform {
 provider "azurerm" {
   features {}
   use_cli = true   # Reuse Azure CLI login from Azure DevOps pipeline
+  subscription_id = "b1f922a0-3de4-4c1f-bfe4-26c679ab2c65"
 }
 
 resource "azurerm_resource_group" "rg" {
